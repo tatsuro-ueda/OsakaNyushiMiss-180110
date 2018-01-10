@@ -1,14 +1,89 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.12/p5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.12/addons/p5.dom.min.js"></script>
 
 <script>
-function setup() {
-	createCanvas(270, 120);
-	background(0, 30, 60);
-}
+    var button;
+    var isStarted = false;
+    var time = 0;
+    var Y_CENTER = 60;
+    var ONSA_X = 100;
+    var wavelength = 10;
+    var omega = 0.1;
+    var X_MAX = 270;
 
-function draw() {
-	strokeWeight(10)
-	stroke(0);
-	line(10, 10, 100, 50);
-}
+    function setup() {
+        drawBackObjects();
+    }
+
+    function draw() {
+        if (isStarted) {
+            removeElements();
+            clear();
+            drawBackObjects();
+            strokeWeight(1);
+            
+            function y1(x) {
+                    return Y_CENTER + 30 * sin(
+                        omega * time - 2 * PI / wavelength * (ONSA_X - x));
+            }
+            function y2(x) {
+                return y1(x) + y1(ONSA_X - x); 
+            }
+
+            for (var x = 0; x <= X_MAX; x++){
+                /*
+                if (X_MAX + ONSA_X < wavespeed * time){
+                    break;
+                }
+                if (ONSA_X < x){
+                    line(ONSA_X - x, y2(x), ONSA_X - (x + 1), y2(x + 1));
+                    /* 
+                        30 * sin(- 2 * PI * x       / wavelength         + time / 5) +
+                        30 * sin(  2 * PI * x       / (wavelength - ONSA_X) + time / 5), 
+                        ONSA_X - x + 1, Y_CENTER + 
+                        30 * sin(- 2 * PI * (x + 1) / wavelength         + time / 5) +
+                        30 * sin(  2 * PI * (x + 1) / (wavelength - ONSA_X) + time / 5))
+                }
+                */
+                if (ONSA_X - wavelength * omega / (2 * PI) * time < x && x < ONSA_X) {
+                    line(x, y1(x), x + 1, y1(x + 1));
+                }
+            }
+        }
+
+        time++;
+    }
+
+    function start() {
+        isStarted = true;
+    }
+
+    function drawBackObjects() {
+        // 幅を300にしてスマホ（320）で表示できるようにする
+        createCanvas(X_MAX, 120);
+        // 軸を描画
+        strokeWeight(1)
+        stroke(0);
+        line(0, 60, X_MAX, 60);
+        // 壁を描画
+        fill(0);
+        rect(0, 0, 5, 120);
+        // 音叉を描画
+        strokeWeight(3);
+        line(ONSA_X,  Y_CENTER, ONSA_X, Y_CENTER - 10);
+        line(ONSA_X,  Y_CENTER - 10, ONSA_X - 5,  Y_CENTER - 15);
+        line(ONSA_X,  Y_CENTER - 10, ONSA_X + 5,  Y_CENTER - 15);
+        line(ONSA_X - 5,  Y_CENTER - 15, ONSA_X - 5,  Y_CENTER - 20);
+        line(ONSA_X + 5,  Y_CENTER - 15, ONSA_X + 5,  Y_CENTER - 20);
+        // マイクロフォンを描画
+        strokeWeight(0);
+        fill(0);
+        rect(235, Y_CENTER - 7, 10, 7);
+        ellipse(240, Y_CENTER - 15, 15, 15);
+        // スタートボタン
+        textAlign(150, 100);
+        button = createButton('-- Start --');
+        button.position(150, 100);
+        button.mousePressed(start);
+    }
 </script>
